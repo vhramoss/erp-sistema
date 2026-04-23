@@ -1,0 +1,280 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ==================== ENUMS ====================
+
+enum Plan {
+  FREE
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  MANAGER
+  USER
+}
+
+enum CustomerType {
+  INDIVIDUAL
+  COMPANY
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+  PIX
+  BANK_TRANSFER
+  BOLETO
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum TransactionCategory {
+  SALE
+  PURCHASE
+  SALARY
+  RENT
+  UTILITIES
+  TAXES
+  MAINTENANCE
+  MARKETING
+  OTHER
+}
+
+// ==================== MODELS ====================
+
+model Company {
+  id          String   @id @default(uuid())
+  name        String
+  cnpj        String   @unique
+  email       String   @unique
+  phone       String?
+  address     String?
+  city        String?
+  state       String?
+  zipCode     String?
+  logo        String?
+  plan        Plan     @default(FREE)
+  isActive    Boolean  @default(true)
+
+  users            User[]
+  products         Product[]
+  customers        Customer[]
+  orders           Order[]
+  transactions     FinancialTransaction[]
+  categories       Category[]
+  aiConversations  AiConversation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("companies")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  password     String
+  name         String
+  role         UserRole @default(USER)
+  isActive     Boolean  @default(true)
+  avatar       String?
+  refreshToken String?
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
+  @@map("users")
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  name      String
+  color     String?
+  isActive  Boolean   @default(true)
+
+  companyId String
+  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  products  Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, companyId])
+  @@index([companyId])
+  @@map("categories")
+}
+
+model Product {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  sku         String?
+  barcode     String?
+  price       Decimal @db.Decimal(10, 2)
+  cost        Decimal? @db.Decimal(10, 2)
+  stock       Int     @default(0)
+  minStock    Int     @default(0)
+  unit        String  @default("un")
+  isActive    Boolean @default(true)
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+  companyId  String
+  company    Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sku, companyId])
+  @@index([companyId])
+  @@map("products")
+}
+
+model Customer {
+  id       String       @id @default(uuid())
+  name     String
+  email    String?
+  phone    String?
+  document String?
+  type     CustomerType @default(INDIVIDUAL)
+  address  String?
+  city     String?
+  state    String?
+  zipCode  String?
+  notes    String?
+  isActive Boolean      @default(true)
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  orders    Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
+  @@map("customers")
+}
+
+model Order {
+  id            String        @id @default(uuid())
+  number        Int
+  status        OrderStatus   @default(PENDING)
+  paymentMethod PaymentMethod @default(CASH)
+  notes         String?
+  subtotal      Decimal       @db.Decimal(10, 2)
+  discount      Decimal       @default(0) @db.Decimal(10, 2)
+  total         Decimal       @db.Decimal(10, 2)
+
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  companyId  String
+  company    Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  items      OrderItem[]
+  transactions FinancialTransaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([number, companyId])
+  @@index([companyId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id       String  @id @default(uuid())
+  quantity Int
+  price    Decimal @db.Decimal(10, 2)
+  discount Decimal @default(0) @db.Decimal(10, 2)
+  total    Decimal @db.Decimal(10, 2)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@map("order_items")
+}
+
+model FinancialTransaction {
+  id          String              @id @default(uuid())
+  type        TransactionType
+  category    TransactionCategory @default(OTHER)
+  description String
+  amount      Decimal             @db.Decimal(10, 2)
+  date        DateTime
+  isPaid      Boolean             @default(false)
+  dueDate     DateTime?
+  notes       String?
+
+  orderId   String?
+  order     Order?  @relation(fields: [orderId], references: [id])
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([date])
+  @@map("financial_transactions")
+}
+
+model AiConversation {
+  id    String      @id @default(uuid())
+  title String
+  messages AiMessage[]
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
+  @@map("ai_conversations")
+}
+
+model AiMessage {
+  id      String @id @default(uuid())
+  role    String
+  content String @db.Text
+
+  conversationId String
+  conversation   AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@map("ai_messages")
+}
