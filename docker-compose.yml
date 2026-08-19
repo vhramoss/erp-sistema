@@ -1,7 +1,5 @@
-version: '3.9'
-
 services:
-  # PostgreSQL local (para desenvolvimento sem Supabase)
+  # PostgreSQL local
   db:
     image: postgres:16-alpine
     container_name: erp_postgres
@@ -28,17 +26,20 @@ services:
     restart: unless-stopped
     ports:
       - '3001:3001'
+    # Aponta diretamente para o .env da pasta backend
+    env_file:
+      - ./backend/.env
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://erp_user:erp_senha_segura@db:5432/erp_database
       DIRECT_URL: postgresql://erp_user:erp_senha_segura@db:5432/erp_database
-      JWT_SECRET: ${JWT_SECRET}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      JWT_SECRET: ${JWT_SECRET:-tcc_erp_jwt_secret_super_segura_2026_victor}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-tcc_erp_refresh_secret_super_segura_2026_victor}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-sk-ant-COLOQUE_SUA_CHAVE_AQUI}
     depends_on:
       db:
         condition: service_healthy
-    command: sh -c "npx prisma migrate deploy && node dist/main"
+    command: sh -c "npx prisma migrate deploy && node dist/src/main.js"
 
   frontend:
     build:

@@ -46,59 +46,67 @@ api.interceptors.response.use(
   },
 );
 
+// Helper genérico para contornar a tipagem padrão do Axios com Interceptors
+const request = {
+  get: <T>(url: string, config?: object) => api.get<never, T>(url, config),
+  post: <T>(url: string, data?: unknown, config?: object) => api.post<never, T>(url, data, config),
+  patch: <T>(url: string, data?: unknown, config?: object) => api.patch<never, T>(url, data, config),
+  delete: <T>(url: string, config?: object) => api.delete<never, T>(url, config),
+};
+
 // Auth
 export const authApi = {
-  login: (data: { email: string; password: string }) => api.post('/v1/auth/login', data),
-  register: (data: unknown) => api.post('/v1/auth/register', data),
-  logout: () => api.post('/v1/auth/logout'),
-  me: () => api.get('/v1/auth/me'),
+  login: <T = any>(data: { email?: string; password?: string }) => request.post<T>('/v1/auth/login', data),
+  register: <T = any>(data: unknown) => request.post<T>('/v1/auth/register', data),
+  logout: <T = any>() => request.post<T>('/v1/auth/logout'),
+  me: <T = any>() => request.get<T>('/v1/auth/me'),
 };
 
 // Dashboard
 export const dashboardApi = {
-  getMetrics: () => api.get('/v1/dashboard'),
-  getRevenueChart: (months = 6) => api.get(`/v1/dashboard/revenue-chart?months=${months}`),
+  getMetrics: <T = any>() => request.get<T>('/v1/dashboard'),
+  getRevenueChart: <T = any>(months = 6) => request.get<T>(`/v1/dashboard/revenue-chart?months=${months}`),
 };
 
 // Products
 export const productsApi = {
-  list: (params?: Record<string, unknown>) => api.get('/v1/products', { params }),
-  get: (id: string) => api.get(`/v1/products/${id}`),
-  create: (data: unknown) => api.post('/v1/products', data),
-  update: (id: string, data: unknown) => api.patch(`/v1/products/${id}`, data),
-  delete: (id: string) => api.delete(`/v1/products/${id}`),
+  list: <T = any>(params?: Record<string, unknown>) => request.get<T>('/v1/products', { params }),
+  get: <T = any>(id: string) => request.get<T>(`/v1/products/${id}`),
+  create: <T = any>(data: unknown) => request.post<T>('/v1/products', data),
+  update: <T = any>(id: string, data: unknown) => request.patch<T>(`/v1/products/${id}`, data),
+  delete: <T = any>(id: string) => request.delete<T>(`/v1/products/${id}`),
 };
 
 // Customers
 export const customersApi = {
-  list: (params?: Record<string, unknown>) => api.get('/v1/customers', { params }),
-  get: (id: string) => api.get(`/v1/customers/${id}`),
-  create: (data: unknown) => api.post('/v1/customers', data),
-  update: (id: string, data: unknown) => api.patch(`/v1/customers/${id}`, data),
-  delete: (id: string) => api.delete(`/v1/customers/${id}`),
+  list: <T = any>(params?: Record<string, unknown>) => request.get<T>('/v1/customers', { params }),
+  get: <T = any>(id: string) => request.get<T>(`/v1/customers/${id}`),
+  create: <T = any>(data: unknown) => request.post<T>('/v1/customers', data),
+  update: <T = any>(id: string, data: unknown) => request.patch<T>(`/v1/customers/${id}`, data),
+  delete: <T = any>(id: string) => request.delete<T>(`/v1/customers/${id}`),
 };
 
 // Orders
 export const ordersApi = {
-  list: (params?: Record<string, unknown>) => api.get('/v1/orders', { params }),
-  get: (id: string) => api.get(`/v1/orders/${id}`),
-  create: (data: unknown) => api.post('/v1/orders', data),
-  updateStatus: (id: string, status: string) => api.patch(`/v1/orders/${id}/status`, { status }),
+  list: <T = any>(params?: Record<string, unknown>) => request.get<T>('/v1/orders', { params }),
+  get: <T = any>(id: string) => request.get<T>(`/v1/orders/${id}`),
+  create: <T = any>(data: unknown) => request.post<T>('/v1/orders', data),
+  updateStatus: <T = any>(id: string, status: string) => request.patch<T>(`/v1/orders/${id}/status`, { status }),
 };
 
 // Financial
 export const financialApi = {
-  list: (params?: Record<string, unknown>) => api.get('/v1/financial', { params }),
-  summary: (params?: Record<string, unknown>) => api.get('/v1/financial/summary', { params }),
-  create: (data: unknown) => api.post('/v1/financial', data),
-  update: (id: string, data: unknown) => api.patch(`/v1/financial/${id}`, data),
-  delete: (id: string) => api.delete(`/v1/financial/${id}`),
+  list: <T = any>(params?: Record<string, unknown>) => request.get<T>('/v1/financial', { params }),
+  summary: <T = any>(params?: Record<string, unknown>) => request.get<T>('/v1/financial/summary', { params }),
+  create: <T = any>(data: unknown) => request.post<T>('/v1/financial', data),
+  update: <T = any>(id: string, data: unknown) => request.patch<T>(`/v1/financial/${id}`, data),
+  delete: <T = any>(id: string) => request.delete<T>(`/v1/financial/${id}`),
 };
 
 // AI
 export const aiApi = {
-  chat: (data: { message: string; conversationId?: string }) => api.post('/v1/ai/chat', data),
-  getConversations: () => api.get('/v1/ai/conversations'),
-  getConversation: (id: string) => api.get(`/v1/ai/conversations/${id}`),
-  deleteConversation: (id: string) => api.delete(`/v1/ai/conversations/${id}`),
+  chat: <T = any>(data: { message: string; conversationId?: string }) => request.post<T>('/v1/ai/chat', data),
+  getConversations: <T = any>() => request.get<T>('/v1/ai/conversations'),
+  getConversation: <T = any>(id: string) => request.get<T>(`/v1/ai/conversations/${id}`),
+  deleteConversation: <T = any>(id: string) => request.delete<T>(`/v1/ai/conversations/${id}`),
 };
