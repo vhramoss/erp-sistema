@@ -33,7 +33,6 @@ erp-sistema/
 │   │       ├── customers/      # CRM básico
 │   │       ├── orders/         # Pedidos com workflow de status
 │   │       ├── financial/      # Transações + resumo financeiro
-│   │       ├── ai/             # Chat com Claude + histórico
 │   │       └── dashboard/      # KPIs + gráfico de faturamento
 │   ├── prisma/
 │   │   ├── schema.prisma       # Schema completo multi-tenant
@@ -51,7 +50,6 @@ erp-sistema/
 │       │       ├── customers/  # Lista de clientes
 │       │       ├── orders/     # Pedidos com filtro por status
 │       │       ├── financial/  # Extrato + resumo financeiro
-│       │       ├── ai-assistant/ # Chat com Claude
 │       │       └── settings/   # Configurações da conta
 │       ├── lib/
 │       │   ├── api.ts          # Axios + interceptors de token
