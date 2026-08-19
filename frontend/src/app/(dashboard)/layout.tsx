@@ -18,7 +18,6 @@ const navItems = [
   { href: '/customers', icon: Users, label: 'Clientes' },
   { href: '/orders', icon: ShoppingCart, label: 'Pedidos' },
   { href: '/financial', icon: DollarSign, label: 'Financeiro' },
-  { href: '/ai-assistant', icon: Bot, label: 'IA Assistente' },
   { href: '/settings', icon: Settings, label: 'Configurações' },
 ];
 

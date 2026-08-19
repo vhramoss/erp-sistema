@@ -10,7 +10,6 @@ import { ProductsModule } from './modules/products/products.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { FinancialModule } from './modules/financial/financial.module';
-import { AiModule } from './modules/ai/ai.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
@@ -25,7 +24,6 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     CustomersModule,
     OrdersModule,
     FinancialModule,
-    AiModule,
     DashboardModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

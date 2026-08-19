@@ -102,11 +102,3 @@ export const financialApi = {
   update: <T = any>(id: string, data: unknown) => request.patch<T>(`/v1/financial/${id}`, data),
   delete: <T = any>(id: string) => request.delete<T>(`/v1/financial/${id}`),
 };
-
-// AI
-export const aiApi = {
-  chat: <T = any>(data: { message: string; conversationId?: string }) => request.post<T>('/v1/ai/chat', data),
-  getConversations: <T = any>() => request.get<T>('/v1/ai/conversations'),
-  getConversation: <T = any>(id: string) => request.get<T>(`/v1/ai/conversations/${id}`),
-  deleteConversation: <T = any>(id: string) => request.delete<T>(`/v1/ai/conversations/${id}`),
-};
