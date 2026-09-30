@@ -81,28 +81,43 @@ export class FinancialService {
       };
     }
 
-    const [income, expense] = await Promise.all([
+    const [paidIncome, pendingIncome, paidExpense, pendingExpense] = await Promise.all([
       this.prisma.financialTransaction.aggregate({
-        where: { ...where, type: 'INCOME' },
+        where: { ...where, type: 'INCOME', isPaid: true },
         _sum: { amount: true },
-        _count: true,
       }),
       this.prisma.financialTransaction.aggregate({
-        where: { ...where, type: 'EXPENSE' },
+        where: { ...where, type: 'INCOME', isPaid: false },
         _sum: { amount: true },
-        _count: true,
+      }),
+      this.prisma.financialTransaction.aggregate({
+        where: { ...where, type: 'EXPENSE', isPaid: true },
+        _sum: { amount: true },
+      }),
+      this.prisma.financialTransaction.aggregate({
+        where: { ...where, type: 'EXPENSE', isPaid: false },
+        _sum: { amount: true },
       }),
     ]);
 
-    const totalIncome = Number(income._sum.amount || 0);
-    const totalExpense = Number(expense._sum.amount || 0);
+    const incomePaid = Number(paidIncome._sum.amount || 0);
+    const incomePending = Number(pendingIncome._sum.amount || 0);
+    const expensePaid = Number(paidExpense._sum.amount || 0);
+    const expensePending = Number(pendingExpense._sum.amount || 0);
 
     return {
-      totalIncome,
-      totalExpense,
-      balance: totalIncome - totalExpense,
-      incomeCount: income._count,
-      expenseCount: expense._count,
+      totalIncome: incomePaid + incomePending,
+      totalExpense: expensePaid + expensePending,
+      balance: incomePaid - expensePaid, // Saldo real é baseado no que foi pago
+      netProfit: (incomePaid + incomePending) - (expensePaid + expensePending),
+      paid: {
+        income: incomePaid,
+        expense: expensePaid,
+      },
+      pending: {
+        income: incomePending,
+        expense: expensePending,
+      },
     };
   }
 }

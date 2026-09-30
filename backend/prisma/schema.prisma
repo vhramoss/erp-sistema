@@ -87,7 +87,7 @@ model Company {
   orders           Order[]
   transactions     FinancialTransaction[]
   categories       Category[]
-  aiConversations  AiConversation[]
+
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

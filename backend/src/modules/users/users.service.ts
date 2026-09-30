@@ -36,7 +36,13 @@ export class UsersService {
   }
 
   async update(id: string, dto: UpdateUserDto, companyId: string) {
-    await this.findOne(id, companyId);
+    const user = await this.findOne(id, companyId);
+
+    // Bloquear promoção para SUPER_ADMIN via update comum
+    if (dto.role === 'SUPER_ADMIN') {
+      throw new UnauthorizedException('Não é permitido promover usuários para SUPER_ADMIN via este endpoint');
+    }
+
     return this.prisma.user.update({ where: { id }, data: dto, select: USER_SELECT });
   }
 

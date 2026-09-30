@@ -37,6 +37,23 @@ export class FinancialController {
     return this.financialService.getSummary(companyId, startDate, endDate);
   }
 
+  @Get('upcoming')
+  @ApiOperation({ summary: 'Transações a vencer no mês' })
+  upcoming(
+    @CurrentUser('companyId') companyId: string,
+  ) {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString();
+    return this.financialService.findAll({
+      isPaid: false,
+      startDate: startOfMonth,
+      endDate: endOfMonth
+    }, companyId);
+  }
+
+
+
   @Get(':id')
   @ApiOperation({ summary: 'Buscar transação por ID' })
   findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser('companyId') companyId: string) {
