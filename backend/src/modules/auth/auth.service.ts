@@ -7,7 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
-
+import * as bcrypt from 'bcrypt';
 // ... (manter imports existentes)
 
 import { PrismaService } from '../../prisma/prisma.service';
