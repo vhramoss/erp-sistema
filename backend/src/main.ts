@@ -30,13 +30,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Initialize Database
-  try {
-    const prismaService = app.get(require('@prisma/client').PrismaClient); // This is a placeholder, we'll use the real service
-  } catch (e) {
-    console.log('Database initialization skipped or failed');
-  }
-
   app.setGlobalPrefix('api');
 
   // Global pipes
