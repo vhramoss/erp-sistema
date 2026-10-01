@@ -41,7 +41,6 @@ async function main() {
   });
 
   await prisma.product.createMany({
-    skipDuplicates: true,
     data: [
       { name: 'Notebook Dell Inspiron', sku: 'NB-001', price: 4999.99, cost: 3500, stock: 15, minStock: 3, categoryId: category.id, companyId: company.id },
       { name: 'Mouse Logitech MX', sku: 'MS-001', price: 299.90, cost: 150, stock: 50, minStock: 10, categoryId: category.id, companyId: company.id },
