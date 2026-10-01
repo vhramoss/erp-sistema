@@ -6,7 +6,10 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
+// ... (manter imports existentes)
+
 import { PrismaService } from '../../prisma/prisma.service';
 import { LoginDto, RefreshTokenDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -95,7 +98,11 @@ export class AuthService {
       });
 
       const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
-      if (!user || !user.isActive || user.refreshToken !== dto.refreshToken) {
+
+      // Comparar o hash do token recebido com o hash salvo no banco
+      const hashedIncomingToken = crypto.createHash('sha256').update(dto.refreshToken).digest('hex');
+
+      if (!user || !user.isActive || user.refreshToken !== hashedIncomingToken) {
         throw new UnauthorizedException('Refresh token inválido');
       }
 
@@ -144,7 +151,10 @@ export class AuthService {
       }),
     ]);
 
-    await this.prisma.user.update({ where: { id: userId }, data: { refreshToken } });
+    // Armazenar o refresh token como hash SHA-256 para segurança
+    const hashedRefreshToken = crypto.createHash('sha256').update(refreshToken).digest('hex');
+
+    await this.prisma.user.update({ where: { id: userId }, data: { refreshToken: hashedRefreshToken } });
 
     return { accessToken, refreshToken };
   }

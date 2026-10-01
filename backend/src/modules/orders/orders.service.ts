@@ -10,46 +10,40 @@ export class OrdersService {
   constructor(private prisma: PrismaService) {}
 
   async create(dto: CreateOrderDto, companyId: string) {
-    const productIds = dto.items.map((i) => i.productId);
-    const products = await this.prisma.product.findMany({
-      where: { id: { in: productIds }, companyId, isActive: true },
-    });
-
-    if (products.length !== productIds.length) {
-      throw new NotFoundException('Um ou mais produtos não encontrados ou inativos');
-    }
-
-    // Validate stock
-    for (const item of dto.items) {
-      const product = products.find((p) => p.id === item.productId)!;
-      if (product.stock < item.quantity) {
-        throw new BadRequestException(`Estoque insuficiente para o produto: ${product.name}`);
-      }
-    }
-
-    // Calculate totals
-    const items = dto.items.map((item) => {
-      const product = products.find((p) => p.id === item.productId)!;
-      const price = Number(product.price);
-      const discount = item.discount || 0;
-      const total = (price - discount) * item.quantity;
-      return { ...item, price, discount, total };
-    });
-
-    const subtotal = items.reduce((acc, i) => acc + i.price * i.quantity, 0);
-    const orderDiscount = dto.discount || 0;
-    const total = subtotal - orderDiscount;
-
-    // Get next order number
-    const lastOrder = await this.prisma.order.findFirst({
-      where: { companyId },
-      orderBy: { number: 'desc' },
-      select: { number: true },
-    });
-    const number = (lastOrder?.number || 0) + 1;
-
-    // Create order and update stock in transaction
     return this.prisma.$transaction(async (tx) => {
+      const productIds = dto.items.map((i) => i.productId);
+      const products = await tx.product.findMany({
+        where: { id: { in: productIds }, companyId, isActive: true },
+      });
+
+      if (products.length !== productIds.length) {
+        throw new NotFoundException('Um ou mais produtos não encontrados ou inativos');
+      }
+
+      // Validate stock and calculate item totals
+      const items = dto.items.map((item) => {
+        const product = products.find((p) => p.id === item.productId)!;
+        if (product.stock < item.quantity) {
+          throw new BadRequestException(`Estoque insuficiente para o produto: ${product.name}`);
+        }
+        const price = Number(product.price);
+        const discount = item.discount || 0;
+        const total = (price - discount) * item.quantity;
+        return { ...item, price, discount, total };
+      });
+
+      const subtotal = items.reduce((acc, i) => acc + i.price * i.quantity, 0);
+      const orderDiscount = dto.discount || 0;
+      const total = subtotal - orderDiscount;
+
+      // Get next order number inside transaction to avoid duplicates
+      const lastOrder = await tx.order.findFirst({
+        where: { companyId },
+        orderBy: { number: 'desc' },
+        select: { number: true },
+      });
+      const number = (lastOrder?.number || 0) + 1;
+
       const order = await tx.order.create({
         data: {
           number,
@@ -76,7 +70,7 @@ export class OrdersService {
               description: `Venda #${number}`,
               amount: new Prisma.Decimal(total),
               date: new Date(),
-              isPaid: true,
+              isPaid: dto.paymentMethod === 'CASH' || dto.paymentMethod === 'PIX',
               companyId,
             },
           },
@@ -100,6 +94,7 @@ export class OrdersService {
       return order;
     });
   }
+
 
   async findAll(query: OrderQueryDto, companyId: string) {
     const { status, customerId, page = 1, limit = 20 } = query;
@@ -157,6 +152,23 @@ export class OrdersService {
       throw new ConflictException(`Transição inválida: ${order.status} → ${dto.status}`);
     }
 
-    return this.prisma.order.update({ where: { id }, data: { status: dto.status } });
+    return this.prisma.$transaction(async (tx) => {
+      // Estorno de estoque e financeiro se for cancelado
+      if (dto.status === 'CANCELLED') {
+        for (const item of order.items) {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { stock: { increment: item.quantity } },
+          });
+        }
+
+        await tx.financialTransaction.updateMany({
+          where: { orderId: id },
+          data: { isPaid: false, notes: 'Estornado por cancelamento de pedido' },
+        });
+      }
+
+      return tx.order.update({ where: { id }, data: { status: dto.status } });
+    });
   }
 }

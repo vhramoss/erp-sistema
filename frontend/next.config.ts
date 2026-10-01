@@ -1,8 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
-  experimental: { typedRoutes: false },
+  typedRoutes: false,
   images: { domains: [] },
   async rewrites() {
     return [

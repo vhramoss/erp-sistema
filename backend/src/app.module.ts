@@ -11,6 +11,7 @@ import { CustomersModule } from './modules/customers/customers.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { FinancialModule } from './modules/financial/financial.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { CategoriesModule } from './modules/categories/categories.module';
 
 @Module({
   imports: [
@@ -25,7 +26,9 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     OrdersModule,
     FinancialModule,
     DashboardModule,
+    CategoriesModule,
   ],
+
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

@@ -34,7 +34,15 @@ export class ProductsService {
     }
     if (categoryId) where.categoryId = categoryId;
     if (isActive !== undefined) where.isActive = isActive;
-    if (lowStock) where.stock = { lte: this.prisma.product.fields.minStock };
+    if (lowStock) {
+      const products = await this.prisma.product.findMany({ where: { companyId } });
+      const lowStockIds = products.filter(p => p.stock <= p.minStock).map(p => p.id);
+      if (lowStockIds.length > 0) {
+        where.id = { in: lowStockIds };
+      } else {
+        where.id = { in: [] }; // Forçar resultado vazio se nenhum estiver baixo
+      }
+    }
 
     const [data, total] = await Promise.all([
       this.prisma.product.findMany({
