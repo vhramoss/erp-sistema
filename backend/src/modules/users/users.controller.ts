@@ -15,14 +15,14 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Criar usuário' })
   create(@Body() dto: CreateUserDto, @CurrentUser('companyId') companyId: string) {
     return this.usersService.create(dto, companyId);
   }
 
   @Get()
-  @Roles(UserRole.MANAGER, UserRole.ADMIN)
+  @Roles(UserRole.MANAGER, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Listar usuários da empresa' })
   findAll(@CurrentUser('companyId') companyId: string) {
     return this.usersService.findAll(companyId);
@@ -35,7 +35,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Atualizar usuário' })
   update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateUserDto, @CurrentUser('companyId') companyId: string) {
     return this.usersService.update(id, dto, companyId);
@@ -48,7 +48,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Desativar usuário' })
   remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser('companyId') companyId: string) {
     return this.usersService.remove(id, companyId);

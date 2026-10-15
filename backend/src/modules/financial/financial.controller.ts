@@ -15,7 +15,7 @@ export class FinancialController {
   constructor(private readonly financialService: FinancialService) {}
 
   @Post()
-  @Roles(UserRole.MANAGER, UserRole.ADMIN)
+  @Roles(UserRole.MANAGER, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Criar transação financeira' })
   create(@Body() dto: CreateTransactionDto, @CurrentUser('companyId') companyId: string) {
     return this.financialService.create(dto, companyId);
@@ -61,14 +61,14 @@ export class FinancialController {
   }
 
   @Patch(':id')
-  @Roles(UserRole.MANAGER, UserRole.ADMIN)
+  @Roles(UserRole.MANAGER, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Atualizar transação' })
   update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateTransactionDto, @CurrentUser('companyId') companyId: string) {
     return this.financialService.update(id, dto, companyId);
   }
 
   @Delete(':id')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Remover transação' })
   remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser('companyId') companyId: string) {
     return this.financialService.remove(id, companyId);

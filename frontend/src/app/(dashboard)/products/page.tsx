@@ -85,18 +85,18 @@ function ProductModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+        <div className="flex items-center justify-between p-6 border-b border-border">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Package size={18} className="text-blue-600" />
+            <div className="w-9 h-9 bg-primary/15 rounded-lg flex items-center justify-center">
+              <Package size={18} className="text-primary" />
             </div>
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-foreground">
               {isEditing ? 'Editar Produto' : 'Novo Produto'}
             </h2>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition">
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition">
             <X size={20} />
           </button>
         </div>
@@ -106,35 +106,35 @@ function ProductModal({
           <div className="grid grid-cols-2 gap-4">
             {fields.map(({ name, label, type, placeholder, col }) => (
               <div key={name} className={col === 2 ? 'col-span-2' : 'col-span-1'}>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{label}</label>
                 <input
                   {...register(name)}
                   type={type}
                   step={type === 'number' ? '0.01' : undefined}
                   placeholder={placeholder}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition"
                 />
                 {errors[name] && (
-                  <p className="text-red-500 text-xs mt-1">{errors[name]?.message}</p>
+                  <p className="text-red-400 text-xs mt-1">{errors[name]?.message}</p>
                 )}
               </div>
             ))}
 
             {/* Descrição */}
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Descrição</label>
               <textarea
                 {...register('description')}
                 rows={3}
                 placeholder="Descrição opcional do produto..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition resize-none"
               />
             </div>
           </div>
 
           {/* Erro da mutation */}
           {mutation.isError && (
-            <p className="text-red-500 text-sm text-center">Erro ao salvar produto. Tente novamente.</p>
+            <p className="text-red-400 text-sm text-center">Erro ao salvar produto. Tente novamente.</p>
           )}
 
           {/* Botões */}
@@ -142,14 +142,14 @@ function ProductModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
+              className="flex-1 px-4 py-2.5 border border-border text-foreground rounded-lg text-sm font-medium hover:bg-muted transition"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={isSubmitting || mutation.isPending}
-              className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition"
+              className="flex-1 flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 disabled:bg-primary/60 text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium transition"
             >
               {(isSubmitting || mutation.isPending) && <Loader2 size={15} className="animate-spin" />}
               {isEditing ? 'Salvar alterações' : 'Criar produto'}
@@ -199,75 +199,75 @@ export default function ProductsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Produtos</h1>
-          <p className="text-gray-500 text-sm mt-1">{data?.meta?.total || 0} produtos cadastrados</p>
+          <h1 className="text-2xl font-bold text-foreground">Produtos</h1>
+          <p className="text-muted-foreground text-sm mt-1">{data?.meta?.total || 0} produtos cadastrados</p>
         </div>
         <button
           onClick={() => setModal({ open: true })}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition"
+          className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium transition"
         >
           <Plus size={16} /> Novo Produto
         </button>
       </div>
 
       {/* Tabela */}
-      <div className="bg-white rounded-xl border border-gray-200">
-        <div className="p-4 border-b border-gray-100">
+      <div className="bg-card rounded-xl border border-border">
+        <div className="p-4 border-b border-border">
           <div className="relative">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar por nome, SKU..."
-              className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm w-full max-w-sm focus:ring-2 focus:ring-blue-500 outline-none"
+              className="pl-9 pr-4 py-2 border border-border rounded-lg text-sm w-full max-w-sm focus:ring-2 focus:ring-ring outline-none"
             />
           </div>
         </div>
 
         {isLoading ? (
           <div className="flex items-center justify-center h-32">
-            <div className="animate-spin w-6 h-6 border-4 border-blue-600 border-t-transparent rounded-full" />
+            <div className="animate-spin w-6 h-6 border-4 border-primary border-t-transparent rounded-full" />
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Produto</th>
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">SKU</th>
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Categoria</th>
-                  <th className="text-right px-4 py-3 text-gray-500 font-medium">Preço</th>
-                  <th className="text-right px-4 py-3 text-gray-500 font-medium">Estoque</th>
-                  <th className="text-center px-4 py-3 text-gray-500 font-medium">Status</th>
+                <tr className="border-b border-border bg-background">
+                  <th className="text-left px-4 py-3 text-muted-foreground font-medium">Produto</th>
+                  <th className="text-left px-4 py-3 text-muted-foreground font-medium">SKU</th>
+                  <th className="text-left px-4 py-3 text-muted-foreground font-medium">Categoria</th>
+                  <th className="text-right px-4 py-3 text-muted-foreground font-medium">Preço</th>
+                  <th className="text-right px-4 py-3 text-muted-foreground font-medium">Estoque</th>
+                  <th className="text-center px-4 py-3 text-muted-foreground font-medium">Status</th>
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
               <tbody>
                 {data?.data?.map((product) => (
-                  <tr key={product.id} className="border-b border-gray-50 hover:bg-gray-50">
+                  <tr key={product.id} className="border-b border-border hover:bg-muted">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                          <Package size={16} className="text-blue-600" />
+                        <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                          <Package size={16} className="text-primary" />
                         </div>
-                        <span className="font-medium text-gray-900">{product.name}</span>
+                        <span className="font-medium text-foreground">{product.name}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-gray-500 font-mono text-xs">{product.sku || '-'}</td>
-                    <td className="px-4 py-3 text-gray-500">{product.category?.name || '-'}</td>
+                    <td className="px-4 py-3 text-muted-foreground font-mono text-xs">{product.sku || '-'}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{product.category?.name || '-'}</td>
                     <td className="px-4 py-3 text-right font-medium">{formatCurrency(product.price)}</td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         {product.stock <= product.minStock && (
-                          <AlertTriangle size={14} className="text-red-500" />
+                          <AlertTriangle size={14} className="text-red-400" />
                         )}
-                        <span className={product.stock <= product.minStock ? 'text-red-600 font-semibold' : 'text-gray-900'}>
+                        <span className={product.stock <= product.minStock ? 'text-red-400 font-semibold' : 'text-foreground'}>
                           {product.stock}
                         </span>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${product.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${product.isActive ? 'bg-emerald-500/15 text-emerald-400' : 'bg-muted text-muted-foreground'}`}>
                         {product.isActive ? 'Ativo' : 'Inativo'}
                       </span>
                     </td>
@@ -275,13 +275,13 @@ export default function ProductsPage() {
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => setModal({ open: true, product })}
-                          className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                          className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition"
                         >
                           <Edit size={15} />
                         </button>
                         <button
                           onClick={() => handleDelete(product)}
-                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                          className="p-1.5 text-muted-foreground hover:text-red-400 hover:bg-destructive/10 rounded-lg transition"
                         >
                           <Trash2 size={15} />
                         </button>
@@ -292,12 +292,12 @@ export default function ProductsPage() {
               </tbody>
             </table>
             {!data?.data?.length && (
-              <div className="text-center py-12 text-gray-400">
+              <div className="text-center py-12 text-muted-foreground">
                 <Package size={40} className="mx-auto mb-3 opacity-50" />
                 <p>Nenhum produto encontrado</p>
                 <button
                   onClick={() => setModal({ open: true })}
-                  className="mt-3 text-blue-600 text-sm hover:underline"
+                  className="mt-3 text-primary text-sm hover:underline"
                 >
                   Cadastrar primeiro produto
                 </button>

@@ -21,7 +21,7 @@ export class CompaniesController {
   }
 
   @Patch(':id')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Atualizar dados da empresa' })
   update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateCompanyDto, @CurrentUser('companyId') companyId: string) {
     return this.companiesService.update(id, dto, companyId);

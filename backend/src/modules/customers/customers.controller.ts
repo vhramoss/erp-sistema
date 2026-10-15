@@ -39,7 +39,7 @@ export class CustomersController {
   }
 
   @Delete(':id')
-  @Roles(UserRole.MANAGER, UserRole.ADMIN)
+  @Roles(UserRole.MANAGER, UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Desativar cliente' })
   remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser('companyId') companyId: string) {
     return this.customersService.remove(id, companyId);

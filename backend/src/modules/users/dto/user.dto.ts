@@ -16,7 +16,7 @@ export class CreateUserDto {
   })
   password: string;
 
-  @ApiPropertyOptional({ enum: UserRole, default: UserRole.USER })
+  @ApiPropertyOptional({ enum: UserRole, default: UserRole.EMPLOYEE })
   @IsOptional() @IsEnum(UserRole)
   role?: UserRole;
 }

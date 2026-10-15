@@ -47,7 +47,7 @@ export class AuthService {
             name: dto.adminName,
             email: dto.adminEmail,
             password: hashedPassword,
-            role: 'ADMIN',
+            role: 'SUPER_ADMIN',
           },
         },
       },
@@ -137,7 +137,7 @@ export class AuthService {
     return user;
   }
 
-  private async generateTokens(userId: string, email: string, role: string, companyId: string) {
+  private async generateTokens(userId: string, email: string, role: string, companyId: string | null) {
     const payload = { sub: userId, email, role, companyId };
 
     const [accessToken, refreshToken] = await Promise.all([

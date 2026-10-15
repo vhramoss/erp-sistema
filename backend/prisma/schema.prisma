@@ -16,11 +16,21 @@ enum Plan {
   ENTERPRISE
 }
 
+// PLATFORM_OWNER: dono da plataforma (sem empresa, acessa todos os tenants)
+// SUPER_ADMIN: administrador maximo da empresa (tenant)
+// MANAGER: gestor   | EMPLOYEE: funcionario
 enum UserRole {
+  PLATFORM_OWNER
   SUPER_ADMIN
-  ADMIN
   MANAGER
-  USER
+  EMPLOYEE
+}
+
+enum StockMovementType {
+  IN
+  OUT
+  ADJUSTMENT
+  RETURN
 }
 
 enum CustomerType {
@@ -87,6 +97,7 @@ model Company {
   transactions     FinancialTransaction[]
   categories       Category[]
   aiConversations  AiConversation[]
+  stockMovements   StockMovement[]
 
 
   createdAt DateTime @default(now())
@@ -100,13 +111,15 @@ model User {
   email        String   @unique
   password     String
   name         String
-  role         UserRole @default(USER)
+  role         UserRole @default(EMPLOYEE)
   isActive     Boolean  @default(true)
   avatar       String?
   refreshToken String?
 
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  // nulo apenas para PLATFORM_OWNER
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  stockMovements StockMovement[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -150,7 +163,8 @@ model Product {
   category   Category? @relation(fields: [categoryId], references: [id])
   companyId  String
   company    Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  orderItems OrderItem[]
+  orderItems     OrderItem[]
+  stockMovements StockMovement[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -176,11 +190,13 @@ model Customer {
 
   companyId String
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  orders    Order[]
+  orders         Order[]
+  stockMovements StockMovement[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([document, companyId])
   @@index([companyId])
   @@map("customers")
 }
@@ -201,6 +217,7 @@ model Order {
   company    Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
   items      OrderItem[]
   transactions FinancialTransaction[]
+  stockMovements StockMovement[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -277,4 +294,33 @@ model AiMessage {
   createdAt DateTime @default(now())
 
   @@map("ai_messages")
+}
+
+// Liga Estoque <-> Produto <-> Cliente (e Pedido/Usuario), sempre dentro do tenant.
+// Product.stock e o saldo atual; cada entrada/saida gera um StockMovement.
+model StockMovement {
+  id          String            @id @default(uuid())
+  type        StockMovementType
+  quantity    Int
+  balance     Int               // saldo do produto apos o movimento
+  unitCost    Decimal?
+  reason      String?
+
+  productId  String
+  product    Product   @relation(fields: [productId], references: [id])
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  orderId    String?
+  order      Order?    @relation(fields: [orderId], references: [id])
+  userId     String?
+  user       User?     @relation(fields: [userId], references: [id])
+  companyId  String
+  company    Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([companyId])
+  @@index([productId])
+  @@index([customerId])
+  @@map("stock_movements")
 }

@@ -25,12 +25,12 @@ interface DashboardMetrics {
 }
 
 const statusColors: Record<string, string> = {
-  PENDING: 'bg-yellow-100 text-yellow-800',
-  CONFIRMED: 'bg-blue-100 text-blue-800',
-  PROCESSING: 'bg-purple-100 text-purple-800',
-  SHIPPED: 'bg-indigo-100 text-indigo-800',
-  DELIVERED: 'bg-green-100 text-green-800',
-  CANCELLED: 'bg-red-100 text-red-800',
+  PENDING: 'bg-amber-500/15 text-amber-400',
+  CONFIRMED: 'bg-primary/15 text-primary',
+  PROCESSING: 'bg-violet-500/15 text-violet-400',
+  SHIPPED: 'bg-indigo-500/15 text-indigo-400',
+  DELIVERED: 'bg-emerald-500/15 text-emerald-400',
+  CANCELLED: 'bg-destructive/15 text-red-400',
 };
 
 const statusLabels: Record<string, string> = {
@@ -52,7 +52,7 @@ export default function DashboardPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -69,23 +69,23 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-500 text-sm mt-1">Visão geral do seu negócio</p>
+        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+        <p className="text-muted-foreground text-sm mt-1">Visão geral do seu negócio</p>
       </div>
 
       {/* Alerts */}
       {(kpis?.pendingOrders || 0) > 0 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-center gap-3">
-          <Clock size={18} className="text-yellow-600 flex-shrink-0" />
-          <span className="text-yellow-800 text-sm">
+        <div className="bg-amber-500/10 border border-amber-500/40 rounded-lg p-4 flex items-center gap-3">
+          <Clock size={18} className="text-amber-400 flex-shrink-0" />
+          <span className="text-amber-400 text-sm">
             <strong>{kpis?.pendingOrders}</strong> pedidos aguardando confirmação
           </span>
         </div>
       )}
       {(kpis?.lowStockProducts || 0) > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
-          <AlertTriangle size={18} className="text-red-600 flex-shrink-0" />
-          <span className="text-red-800 text-sm">
+        <div className="bg-destructive/10 border border-destructive/40 rounded-lg p-4 flex items-center gap-3">
+          <AlertTriangle size={18} className="text-red-400 flex-shrink-0" />
+          <span className="text-red-400 text-sm">
             <strong>{kpis?.lowStockProducts}</strong> produtos com estoque baixo
           </span>
         </div>
@@ -94,16 +94,16 @@ export default function DashboardPage() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {kpiCards.map(({ label, value, growth, icon: Icon, color }) => (
-          <div key={label} className="bg-white rounded-xl border border-gray-200 p-5">
+          <div key={label} className="bg-card rounded-xl border border-border p-5">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-sm text-gray-500">{label}</span>
+              <span className="text-sm text-muted-foreground">{label}</span>
               <div className={`bg-${color}-100 p-2 rounded-lg`}>
                 <Icon size={18} className={`text-${color}-600`} />
               </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{value}</p>
+            <p className="text-2xl font-bold text-foreground">{value}</p>
             {growth !== undefined && (
-              <div className={`flex items-center gap-1 mt-1 text-xs ${growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className={`flex items-center gap-1 mt-1 text-xs ${growth >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                 {growth >= 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
                 {formatPercent(growth)} vs mês anterior
               </div>
@@ -115,8 +115,8 @@ export default function DashboardPage() {
       {/* Chart + Tables */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Revenue Chart */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-5">
-          <h2 className="font-semibold text-gray-900 mb-4">Faturamento Mensal</h2>
+        <div className="lg:col-span-2 bg-card rounded-xl border border-border p-5">
+          <h2 className="font-semibold text-foreground mb-4">Faturamento Mensal</h2>
           <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={chartData || []}>
               <defs>
@@ -135,18 +135,18 @@ export default function DashboardPage() {
         </div>
 
         {/* Top Products */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h2 className="font-semibold text-gray-900 mb-4">Produtos Mais Vendidos</h2>
+        <div className="bg-card rounded-xl border border-border p-5">
+          <h2 className="font-semibold text-foreground mb-4">Produtos Mais Vendidos</h2>
           <div className="space-y-3">
-            {metrics?.topProducts?.length === 0 && <p className="text-gray-400 text-sm">Nenhum dado disponível</p>}
+            {metrics?.topProducts?.length === 0 && <p className="text-muted-foreground text-sm">Nenhum dado disponível</p>}
             {metrics?.topProducts?.map((p, i) => (
               <div key={i} className="flex items-center gap-3">
-                <span className="text-sm font-bold text-gray-400 w-5">{i + 1}</span>
+                <span className="text-sm font-bold text-muted-foreground w-5">{i + 1}</span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-gray-900 truncate">{p.name}</p>
-                  {p.sku && <p className="text-xs text-gray-400">SKU: {p.sku}</p>}
+                  <p className="text-sm font-medium text-foreground truncate">{p.name}</p>
+                  {p.sku && <p className="text-xs text-muted-foreground">SKU: {p.sku}</p>}
                 </div>
-                <span className="text-sm font-semibold text-blue-600">{p.totalSold} un</span>
+                <span className="text-sm font-semibold text-primary">{p.totalSold} un</span>
               </div>
             ))}
           </div>
@@ -154,36 +154,36 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Orders */}
-      <div className="bg-white rounded-xl border border-gray-200 p-5">
-        <h2 className="font-semibold text-gray-900 mb-4">Pedidos Recentes</h2>
+      <div className="bg-card rounded-xl border border-border p-5">
+        <h2 className="font-semibold text-foreground mb-4">Pedidos Recentes</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100">
-                <th className="text-left py-2 text-gray-500 font-medium">#</th>
-                <th className="text-left py-2 text-gray-500 font-medium">Cliente</th>
-                <th className="text-left py-2 text-gray-500 font-medium">Status</th>
-                <th className="text-right py-2 text-gray-500 font-medium">Total</th>
-                <th className="text-right py-2 text-gray-500 font-medium">Data</th>
+              <tr className="border-b border-border">
+                <th className="text-left py-2 text-muted-foreground font-medium">#</th>
+                <th className="text-left py-2 text-muted-foreground font-medium">Cliente</th>
+                <th className="text-left py-2 text-muted-foreground font-medium">Status</th>
+                <th className="text-right py-2 text-muted-foreground font-medium">Total</th>
+                <th className="text-right py-2 text-muted-foreground font-medium">Data</th>
               </tr>
             </thead>
             <tbody>
               {metrics?.recentOrders?.map((order) => (
-                <tr key={order.id} className="border-b border-gray-50 hover:bg-gray-50">
-                  <td className="py-3 font-mono text-gray-900">#{order.number}</td>
-                  <td className="py-3 text-gray-600">{order.customer?.name || 'Consumidor final'}</td>
+                <tr key={order.id} className="border-b border-border hover:bg-muted">
+                  <td className="py-3 font-mono text-foreground">#{order.number}</td>
+                  <td className="py-3 text-muted-foreground">{order.customer?.name || 'Consumidor final'}</td>
                   <td className="py-3">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[order.status]}`}>
                       {statusLabels[order.status]}
                     </span>
                   </td>
                   <td className="py-3 text-right font-medium">{formatCurrency(order.total)}</td>
-                  <td className="py-3 text-right text-gray-500">{formatDate(order.createdAt)}</td>
+                  <td className="py-3 text-right text-muted-foreground">{formatDate(order.createdAt)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {!metrics?.recentOrders?.length && <p className="text-gray-400 text-sm text-center py-4">Nenhum pedido encontrado</p>}
+          {!metrics?.recentOrders?.length && <p className="text-muted-foreground text-sm text-center py-4">Nenhum pedido encontrado</p>}
         </div>
       </div>
     </div>

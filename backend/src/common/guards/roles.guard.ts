@@ -18,11 +18,13 @@ export class RolesGuard implements CanActivate {
     if (!user) throw new ForbiddenException('Acesso negado');
 
     const roleHierarchy = {
-      [UserRole.SUPER_ADMIN]: 4,
-      [UserRole.ADMIN]: 3,
+      [UserRole.PLATFORM_OWNER]: 4,
+      [UserRole.SUPER_ADMIN]: 3,
       [UserRole.MANAGER]: 2,
-      [UserRole.USER]: 1,
+      [UserRole.EMPLOYEE]: 1,
     };
+    // Dono da plataforma tem acesso total a todos os tenants
+    if (user.role === UserRole.PLATFORM_OWNER) return true;
 
     const userLevel = roleHierarchy[user.role as UserRole] || 0;
     const hasRole = requiredRoles.some((role) => userLevel >= roleHierarchy[role]);

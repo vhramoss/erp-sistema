@@ -87,18 +87,18 @@ export default function RegisterPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-8">
+    <div className="min-h-screen bg-[radial-gradient(60%_60%_at_50%_0%,hsl(217_91%_60%_/_0.12),transparent)] bg-background flex items-center justify-center p-4">
+      <div className="bg-card rounded-2xl shadow-xl w-full max-w-lg p-8">
         <div className="flex flex-col items-center mb-8">
-          <div className="bg-blue-600 p-3 rounded-xl mb-4">
-            <Building2 className="text-white w-8 h-8" />
+          <div className="bg-primary p-3 rounded-xl mb-4">
+            <Building2 className="text-primary-foreground w-8 h-8" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Cadastrar Empresa</h1>
-          <p className="text-gray-500 mt-1">Crie sua conta no ERP Sistema</p>
+          <h1 className="text-2xl font-bold text-foreground">Cadastrar Empresa</h1>
+          <p className="text-muted-foreground mt-1">Crie sua conta no ERP Sistema</p>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm">
+          <div className="bg-destructive/10 border border-destructive/40 text-red-400 px-4 py-3 rounded-lg mb-6 text-sm">
             {error}
           </div>
         )}
@@ -106,30 +106,30 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {fields.map(({ name, label, type, placeholder }) => (
             <div key={name}>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+              <label className="block text-sm font-medium text-foreground mb-1">{label}</label>
               <input
                 {...register(name)}
                 type={type}
                 placeholder={placeholder}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                className="w-full px-4 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition"
               />
-              {errors[name] && <p className="text-red-500 text-xs mt-1">{errors[name]?.message}</p>}
+              {errors[name] && <p className="text-red-400 text-xs mt-1">{errors[name]?.message}</p>}
             </div>
           ))}
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-2.5 rounded-lg transition flex items-center justify-center gap-2 mt-2"
+            className="w-full bg-primary hover:bg-primary/90 disabled:bg-primary/60 text-primary-foreground font-semibold py-2.5 rounded-lg transition flex items-center justify-center gap-2 mt-2"
           >
             {isSubmitting && <Loader2 className="animate-spin w-4 h-4" />}
             {isSubmitting ? 'Cadastrando...' : 'Criar conta'}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="text-center text-sm text-muted-foreground mt-6">
           Já tem conta?{' '}
-          <a href="/login" className="text-blue-600 hover:underline font-medium">Entrar</a>
+          <a href="/login" className="text-primary hover:underline font-medium">Entrar</a>
         </p>
       </div>
     </div>

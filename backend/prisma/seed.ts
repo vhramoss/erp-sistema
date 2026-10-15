@@ -29,10 +29,23 @@ async function main() {
       name: 'Administrador Demo',
       email: 'admin@empresa-demo.com',
       password: hashedPassword,
-      role: 'ADMIN',
+      role: 'SUPER_ADMIN',
       companyId: company.id,
     },
   });
+
+  // Dono da plataforma (sem empresa)
+  await prisma.user.upsert({
+    where: { email: 'owner@plataforma.com' },
+    update: {},
+    create: { name: 'Dono da Plataforma', email: 'owner@plataforma.com', password: hashedPassword, role: 'PLATFORM_OWNER' },
+  });
+  for (const [email, name, role] of [
+    ['gestor@empresa-demo.com', 'Gestor Demo', 'MANAGER'],
+    ['funcionario@empresa-demo.com', 'Funcionario Demo', 'EMPLOYEE'],
+  ] as const) {
+    await prisma.user.upsert({ where: { email }, update: {}, create: { name, email, password: hashedPassword, role, companyId: company.id } });
+  }
 
   const category = await prisma.category.upsert({
     where: { name_companyId: { name: 'Eletrônicos', companyId: company.id } },
