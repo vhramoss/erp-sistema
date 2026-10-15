@@ -11,24 +11,36 @@ export class OrdersService {
 
   async create(dto: CreateOrderDto, companyId: string) {
     return this.prisma.$transaction(async (tx) => {
+      // 1. Validate Customer and Company Isolation
+      if (dto.customerId) {
+        const customer = await tx.customer.findFirst({
+          where: { id: dto.customerId, companyId },
+        });
+        if (!customer) throw new NotFoundException('Cliente não encontrado ou pertence a outra empresa');
+      }
+
       const productIds = dto.items.map((i) => i.productId);
       const products = await tx.product.findMany({
         where: { id: { in: productIds }, companyId, isActive: true },
       });
 
       if (products.length !== productIds.length) {
-        throw new NotFoundException('Um ou mais produtos não encontrados ou inativos');
+        throw new NotFoundException('Um ou mais produtos não foram encontrados, estão inativos ou pertencem a outra empresa');
       }
 
-      // Validate stock and calculate item totals
+      // 2. Validate stock and calculate totals using SERVER-SIDE prices
       const items = dto.items.map((item) => {
         const product = products.find((p) => p.id === item.productId)!;
+
         if (product.stock < item.quantity) {
-          throw new BadRequestException(`Estoque insuficiente para o produto: ${product.name}`);
+          throw new BadRequestException(`Estoque insuficiente para o produto ${product.name}. Disponível: ${product.stock}, Solicitado: ${item.quantity}`);
         }
+
+        // ALWAYS use the price from the database, ignore the one from the frontend
         const price = Number(product.price);
         const discount = item.discount || 0;
         const total = (price - discount) * item.quantity;
+
         return { ...item, price, discount, total };
       });
 
@@ -36,7 +48,7 @@ export class OrdersService {
       const orderDiscount = dto.discount || 0;
       const total = subtotal - orderDiscount;
 
-      // Get next order number inside transaction to avoid duplicates
+      // 3. Get next order number
       const lastOrder = await tx.order.findFirst({
         where: { companyId },
         orderBy: { number: 'desc' },
@@ -44,6 +56,7 @@ export class OrdersService {
       });
       const number = (lastOrder?.number || 0) + 1;
 
+      // 4. Create Order, Items and Financial Transaction atomically
       const order = await tx.order.create({
         data: {
           number,
@@ -81,7 +94,7 @@ export class OrdersService {
         },
       });
 
-      // Decrement stock
+      // 5. Decrement stock
       await Promise.all(
         items.map((i) =>
           tx.product.update({

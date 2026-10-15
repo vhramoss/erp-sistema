@@ -201,7 +201,13 @@ function OrderModal({ onClose }: { onClose: () => void }) {
             <div className="flex justify-between font-bold text-gray-900 text-base border-t border-gray-200 pt-2 mt-2"><span>Total</span><span>{formatCurrency(total)}</span></div>
           </div>
 
-          {mutation.isError && <p className="text-red-500 text-sm text-center">Erro ao criar pedido. Verifique o estoque.</p>}
+          {mutation.isError && (
+            <p className="text-red-500 text-sm text-center">
+              {(mutation.error as any)?.response?.data?.message ||
+               (mutation.error as any)?.message ||
+               "Erro ao criar pedido. Verifique os dados."}
+            </p>
+          )}
 
           <div className="flex gap-3">
             <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition">Cancelar</button>
